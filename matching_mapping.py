@@ -23,7 +23,7 @@ con = con = pymysql.connect(host='profeza1.cmiovtxwqa3q.ap-south-1.rds.amazonaws
 #step1 - get the product table ----  getting all the products from product table
 id_product={}
 with con.cursor() as cur:
-    cur.execute("Select product_id, product_name from product")
+    cur.execute("Select product_id, product_name from product where product_flag = 0")
     for row in cur.fetchall():
         id_product[row["product_id"]] = row["product_name"]
         
@@ -112,6 +112,13 @@ with con.cursor() as cur:
                     #inserting into k_p_m , the keyword to corresponding product
                     cur.execute("INSERT INTO keyword_product_map (keyword_keyword_id, product_product_id) VALUES (%s,%s)",(keyword_id,key))
                     print('insert in k_p_m ...............')
+
+        ####update the flag column in product table which is 1 if the product is done otherwise 0.
+        cur.execute('''UPDATE `smart_sales_app`.`product`
+                       SET
+                       `product_flag` = 1
+                       WHERE `product_id` = %s;''',(key))
+        print("product flag has been updated")
 
                         
 

@@ -47,11 +47,11 @@ tindex = 0
 control = True
 with con.cursor() as cur:
     while control == True:
-        trows, tindex, control = batch_index(query="SELECT research_article_id, research_article_keywords FROM research_article", index = tindex)
+        trows, tindex, control = batch_index(query="SELECT thesis_id, thesis_keywords FROM thesis", index = tindex)
         #trows contains 100 thesis_id with thesis_keywords
         thesis_id_keywords={}
         for row in trows:
-            thesis_id_keywords[row["research_article_id"]] = row["research_article_keywords"].lower().split() #making list of keyword in thesis_id as key
+            thesis_id_keywords[row["thesis_id"]] = row["thesis_keywords"].lower().split() #making list of keyword in thesis_id as key
         for key, value in thesis_id_keywords.items():
             print(key)
             #Checking first if keyword present in keyword table or not
@@ -70,17 +70,16 @@ with con.cursor() as cur:
                         #print('in')
                         for pkey in product_ids:
                             print('a')
-                            cur.execute("INSERT INTO product_research_article_map (product_product_id, research_article_research_article_id, keyword) VALUES (%s,%s,%s)",(pkey,key,item,))
-                        print('insert in p_ra_m')
+                            cur.execute("INSERT INTO product_thesis_map (product_product_id, thesis_thesis_id, keyword) VALUES (%s,%s,%s)",(pkey,key,item,))
+                        print('insert in p_t_m')
                     #CASE 2:::: If not present keyword in keyword table, 
                         #then update that keyword against the thesis_id in thesis_unmatched_keywords
                     else:
-                        cur.execute("INSERT INTO research_article_unmatched_keyword (research_article_research_article_keyword, research_article_research_article_id) VALUES (%s,%s)",(item,key))
-                        print("insert in research_article_unmatched")   
-        
-            cur.execute('''UPDATE `smart_sales_app`.`thesis`
-                           SET
-                           `research_article_flag` = 1
-                           WHERE `research_article_id` = %s;''',(key))
+                        cur.execute("INSERT INTO thesis_unmatched_keyword (thesis_thesis_keyword, thesis_thesis_id) VALUES (%s,%s)",(item,key))
+                        print("insert in thesis_unmatched")                  
+
+        cur.execute('''UPDATE `smart_sales_app`.`thesis`
+                       SET
+                       `thesis_flag` = 1
+                       WHERE `thesis_id` = %s;''',(key))
         print("thesis flag has been updated")
-            
